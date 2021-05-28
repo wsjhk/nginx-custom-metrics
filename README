@@ -1,0 +1,22 @@
+部署nginx-custom-metrics：
+1）将lua脚本拷贝到nginx-tmpl.conf配置的对应目录下；
+
+2）配置nginx的/nginx_status模块和端口（注意这个端口和uri的配置，需要和如下环境变量一致）；
+
+3）Nginx的pod中添加如下环境变量：
+    MetricsPerHost=true
+    EnableMetrics=true
+    ListenPorts="8888"
+    POD_NAMESPACE="slb-nginx"
+    POD_NAME="slb-nginx-demo-01"
+    NGINX_CLASS="slb-nginx-demo"
+
+4）nginx.conf的http模块下配置如下内容（全局生效）:
+log_by_lua_block {
+    monitor.call()
+    plugins.run()
+}
+或者将block的两行代码写入一个log_by_lua_monitor_call.lua文件，然后在nginx.conf中通过
+log_by_lua_file '/usr/local/nginx/lua/log_by_lua_monitor_call.lua';全局引入生效。
+
+5）nginx.conf的配置参考nginx-tmpl.conf
