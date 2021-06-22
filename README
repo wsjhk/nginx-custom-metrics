@@ -1,3 +1,5 @@
+nginx-custom-metrics代码是将ingress-nginx-controller中的metrics监控相关的代码抽取出来后修改为可独立运行的代码，用于集成到nginx中来做相关的监控。
+
 部署nginx-custom-metrics：
 1）将lua脚本拷贝到nginx-tmpl.conf配置的对应目录下；
 
