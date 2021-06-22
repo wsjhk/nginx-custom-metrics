@@ -23,4 +23,5 @@ log_by_lua_file '/usr/local/nginx/lua/log_by_lua_monitor_call.lua';全局引入�
 
 
 编译：
-go build nginx/main.go -o nginx-custom-metrics
+go build -o nginx-custom-metrics nginx/main.go
+

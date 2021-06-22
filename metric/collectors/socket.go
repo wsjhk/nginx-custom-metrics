@@ -334,6 +334,7 @@ func (sc *SocketCollector) Start() {
 	for {
 		conn, err := sc.listener.AcceptUnix()
 		if err != nil {
+			println(time.Now().Format(time.UnixDate),": ",err)
 			continue
 		}
 		go handleMessages(conn, sc.handleMessage)
@@ -386,6 +387,7 @@ func handleMessages(conn io.ReadCloser, fn func([]byte)) {
 	defer conn.Close()
 	data, err := ioutil.ReadAll(conn)
 	if err != nil {
+		println(time.Now().Format(time.UnixDate),": ",err)
 		return
 	}
 
