@@ -331,8 +331,10 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 
 // Start listen for connections in the unix socket and spawns a goroutine to process the content
 func (sc *SocketCollector) Start() {
+	defer sc.Stop()
 	for {
 		conn, err := sc.listener.AcceptUnix()
+		println(time.Now().Format(time.UnixDate),"conn remote_addr is: ",conn.RemoteAddr().String())
 		if err != nil {
 			println(time.Now().Format(time.UnixDate),": ",err)
 			continue
