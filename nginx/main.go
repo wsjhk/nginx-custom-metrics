@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand" // #nosec
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"strconv"
 	"time"
@@ -16,6 +17,7 @@ import (
 
 var (
 	EnableMetrics, _ = strconv.ParseBool(os.Getenv("EnableMetrics"))
+	EnableProfiler, _ = strconv.ParseBool(os.Getenv("EnableProfiler"))
 	MetricsPerHost, _ = strconv.ParseBool(os.Getenv("MetricsPerHost"))
 	ListenPorts, _ = strconv.ParseInt(os.Getenv("ListenPorts"), 10, 64)
 	err error
@@ -46,6 +48,10 @@ func main() {
 	mux := http.NewServeMux()
 	registerMetrics(reg, mux)
 
+	if EnableProfiler {
+		registerProfiler(mux)
+	}
+
 	go startHTTPServer(int(ListenPorts), mux)
 
 	for {
@@ -61,6 +67,19 @@ func registerMetrics(reg *prometheus.Registry, mux *http.ServeMux) {
 			promhttp.HandlerFor(reg, promhttp.HandlerOpts{}),
 		),
 	)
+}
+
+func registerProfiler(mux *http.ServeMux) {
+	mux.HandleFunc("/debug/pprof/", pprof.Index)
+	mux.HandleFunc("/debug/pprof/heap", pprof.Index)
+	mux.HandleFunc("/debug/pprof/mutex", pprof.Index)
+	mux.HandleFunc("/debug/pprof/goroutine", pprof.Index)
+	mux.HandleFunc("/debug/pprof/threadcreate", pprof.Index)
+	mux.HandleFunc("/debug/pprof/block", pprof.Index)
+	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 }
 
 func startHTTPServer(port int, mux *http.ServeMux) {
