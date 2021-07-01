@@ -222,13 +222,13 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 }
 
 func (sc *SocketCollector) handleMessage(msg []byte) {
-	println(time.Now().Format(time.UnixDate),": ","Metric", "message", string(msg))
+	//println(time.Now().Format(time.UnixDate),": ","Metric", "message", string(msg))
 
 	// Unmarshal bytes
 	var statsBatch []socketData
 	err := jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal(msg, &statsBatch)
 	if err != nil {
-		println(time.Now().Format(time.UnixDate),": ",err, "Unexpected error deserializing JSON", "payload", string(msg))
+		//println(time.Now().Format(time.UnixDate),": ",err, "Unexpected error deserializing JSON", "payload", string(msg))
 		return
 	}
 
