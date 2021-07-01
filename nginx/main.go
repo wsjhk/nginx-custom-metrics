@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
-	"runtime"
 	"strconv"
 	"time"
 
@@ -57,7 +56,7 @@ func main() {
 
 	for {
 		time.Sleep(time.Second * 60)
-		Println(time.Now().Format(time.UnixDate), "the NumGoroutine done is: ", runtime.NumGoroutine())
+		//Println(time.Now().Format(time.UnixDate), "the NumGoroutine done is: ", runtime.NumGoroutine())
 	}
 }
 

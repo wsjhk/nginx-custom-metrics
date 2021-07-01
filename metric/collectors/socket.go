@@ -334,9 +334,9 @@ func (sc *SocketCollector) Start() {
 	defer sc.Stop()
 	for {
 		conn, err := sc.listener.AcceptUnix()
-		println(time.Now().Format(time.UnixDate),"conn remote_addr is: ",conn.RemoteAddr().String())
+		//println(time.Now().Format(time.UnixDate),"conn remote_addr is: ",conn.RemoteAddr().String())
 		if err != nil {
-			println(time.Now().Format(time.UnixDate),": ",err)
+			//println(time.Now().Format(time.UnixDate),": ",err)
 			continue
 		}
 		go handleMessages(conn, sc.handleMessage)
@@ -389,7 +389,7 @@ func handleMessages(conn io.ReadCloser, fn func([]byte)) {
 	defer conn.Close()
 	data, err := ioutil.ReadAll(conn)
 	if err != nil {
-		println(time.Now().Format(time.UnixDate),": ",err)
+		//println(time.Now().Format(time.UnixDate),": ",err)
 		return
 	}
 
