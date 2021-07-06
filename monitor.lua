@@ -31,7 +31,7 @@ local function metrics()
   return {
     host = ngx.var.host or "-",
     namespace = ngx.var.namespace or "-",
-    path = ngx.var.request_uri or "-",
+--     path = ngx.var.request_uri or "-",
 
     method = ngx.var.request_method or "-",
     status = ngx.var.status or "-",

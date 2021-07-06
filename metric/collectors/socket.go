@@ -77,7 +77,7 @@ var (
 	requestTags = []string{
 		"status",
 		"method",
-		"path",
+		//"path",
 		"upstream_host",
 		"upstream_status",
 	}
@@ -190,7 +190,7 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 				ConstLabels: constLabels,
 				Objectives:  defObjectives,
 			},
-			[]string{"host", "path", "upstream_host", "upstream_status"},
+			[]string{"host", "upstream_host", "upstream_status"},
 		),
 	}
 
@@ -231,7 +231,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 		requestLabels := prometheus.Labels{
 			"status":    stats.Status,
 			"method":    stats.Method,
-			"path":      stats.Path,
+			//"path":      stats.Path,
 			"upstream_host":	stats.UpstreamAddr,
 			"upstream_status":	stats.UpstreamStatus,
 		}
@@ -248,7 +248,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 
 		latencyLabels := prometheus.Labels{
 			"host": stats.Host,
-			"path": stats.Path,
+			//"path": stats.Path,
 			"upstream_host":	stats.UpstreamAddr,
 			"upstream_status":	stats.UpstreamStatus,
 		}
