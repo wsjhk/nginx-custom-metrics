@@ -17,7 +17,6 @@ import (
 
 var (
 	EnableMetrics, _ = strconv.ParseBool(os.Getenv("EnableMetrics"))
-	EnableProfiler, _ = strconv.ParseBool(os.Getenv("EnableProfiler"))
 	MetricsPerHost, _ = strconv.ParseBool(os.Getenv("MetricsPerHost"))
 	ListenPorts, _ = strconv.ParseInt(os.Getenv("ListenPorts"), 10, 64)
 	err error
@@ -47,10 +46,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	registerMetrics(reg, mux)
-
-	if EnableProfiler {
-		registerProfiler(mux)
-	}
+	registerProfiler(mux)
 
 	go startHTTPServer(int(ListenPorts), mux)
 
