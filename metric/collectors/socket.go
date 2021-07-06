@@ -33,25 +33,18 @@ type upstream struct {
 	Latency        float64 `json:"upstreamLatency"`
 	ResponseLength float64 `json:"upstreamResponseLength"`
 	ResponseTime   float64 `json:"upstreamResponseTime"`
-	//Status         string  `json:"upstreamStatus"`
+	UpstreamAddr   string  `json:"upstreamAddr"`
+	UpstreamStatus string  `json:"upstreamStatus"`
 }
 
 type socketData struct {
 	Host   string `json:"host"`
 	Status string `json:"status"`
-
 	ResponseLength float64 `json:"responseLength"`
-
 	Method string `json:"method"`
-
 	RequestLength float64 `json:"requestLength"`
 	RequestTime   float64 `json:"requestTime"`
-
 	upstream
-
-	//Namespace string `json:"namespace"`
-	//Ingress   string `json:"ingress"`
-	//Service   string `json:"service"`
 	Path      string `json:"path"`
 }
 
@@ -83,13 +76,10 @@ type SocketCollector struct {
 var (
 	requestTags = []string{
 		"status",
-
 		"method",
 		"path",
-
-		//"namespace",
-		//"ingress",
-		//"service",
+		"upstream_host",
+		"upstream_status",
 	}
 )
 
@@ -178,8 +168,7 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 				Namespace:   PrometheusNamespace,
 				ConstLabels: constLabels,
 			},
-			[]string{"host", "status"},
-			//[]string{"ingress", "namespace", "status", "service"},
+			[]string{"host", "status", "upstream_host", "upstream_status"},
 		),
 
 		bytesSent: prometheus.NewHistogramVec(
@@ -201,8 +190,7 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 				ConstLabels: constLabels,
 				Objectives:  defObjectives,
 			},
-			[]string{"host", "path"},
-			//[]string{"ingress", "namespace", "service"},
+			[]string{"host", "path", "upstream_host", "upstream_status"},
 		),
 	}
 
@@ -244,28 +232,25 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 			"status":    stats.Status,
 			"method":    stats.Method,
 			"path":      stats.Path,
-			//"namespace": stats.Namespace,
-			//"ingress":   stats.Ingress,
-			//"service":   stats.Service,
+			"upstream_host":	stats.UpstreamAddr,
+			"upstream_status":	stats.UpstreamStatus,
 		}
 		if sc.metricsPerHost {
 			requestLabels["host"] = stats.Host
 		}
 
 		collectorLabels := prometheus.Labels{
-			//"namespace": stats.Namespace,
-			//"ingress":   stats.Ingress,
 			"host":		stats.Host,
 			"status":    stats.Status,
-			//"service":   stats.Service,
+			"upstream_host":	stats.UpstreamAddr,
+			"upstream_status":	stats.UpstreamStatus,
 		}
 
 		latencyLabels := prometheus.Labels{
-			//"namespace": stats.Namespace,
-			//"ingress":   stats.Ingress,
-			//"service":   stats.Service,
 			"host": stats.Host,
 			"path": stats.Path,
+			"upstream_host":	stats.UpstreamAddr,
+			"upstream_status":	stats.UpstreamStatus,
 		}
 
 		requestsMetric, err := sc.requests.GetMetricWith(collectorLabels)
