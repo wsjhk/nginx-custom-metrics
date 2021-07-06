@@ -8,7 +8,6 @@ ngxcustom-metrics代码是将ingress-nginx-controller中的metrics监控相关�
 3）Nginx的pod中添加如下环境变量：
     MetricsPerHost=true
     EnableMetrics=true
-    EnableProfiler=true
     ListenPorts="8888"
     POD_NAMESPACE="slb-nginx"
     POD_NAME="slb-nginx-demo-01"
@@ -31,7 +30,8 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ngxcustom-metrics nginx/main.g
 
 
 优化：
-1.程序启动后内存一直不断上升，直到OOM。通过go tool pprof分析后是NewHistogramVec和NewSummaryVec导致的。因为metrics收集的字段中包含了path，数量太多。因为是一层的监控，所以监控粒度可以不那么小，故将其去掉。
+1.程序启动后内存一直不断上升，直到OOM。通过go tool pprof分析后是NewHistogramVec和NewSummaryVec导致的。因为metrics收集的字段中包含了path，数量太多。
+因为是一层的监控，所以监控粒度可以不那么小，故将其去掉。
 ```
 diff --git a/metric/collectors/socket.go b/metric/collectors/socket.go
 index 3fc50fd..75b4cd6 100644
