@@ -29,3 +29,65 @@ log_by_lua_file '/usr/local/nginx/lua/log_by_lua_monitor_call.lua';全局引入�
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ngxcustom-metrics nginx/main.go
 
 
+
+优化：
+1.程序启动后内存一直不断上升，直到OOM。通过go tool pprof分析后是NewHistogramVec和NewSummaryVec导致的。因为metrics收集的字段中包含了path，数量太多。因为是一层的监控，所以监控粒度可以不那么小，故将其去掉。
+```
+diff --git a/metric/collectors/socket.go b/metric/collectors/socket.go
+index 3fc50fd..75b4cd6 100644
+--- a/metric/collectors/socket.go
++++ b/metric/collectors/socket.go
+@@ -77,7 +77,7 @@ var (
+        requestTags = []string{
+                "status",
+                "method",
+-               "path",
++               //"path",
+                "upstream_host",
+                "upstream_status",
+        }
+@@ -190,7 +190,7 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
+                                ConstLabels: constLabels,
+                                Objectives:  defObjectives,
+                        },
+-                       []string{"host", "path", "upstream_host", "upstream_status"},
++                       []string{"host", "upstream_host", "upstream_status"},
+                ),
+        }
+
+@@ -231,7 +231,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
+                requestLabels := prometheus.Labels{
+                        "status":    stats.Status,
+                        "method":    stats.Method,
+-                       "path":      stats.Path,
++                       //"path":      stats.Path,
+                        "upstream_host":        stats.UpstreamAddr,
+                        "upstream_status":      stats.UpstreamStatus,
+                }
+@@ -248,7 +248,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
+
+                latencyLabels := prometheus.Labels{
+                        "host": stats.Host,
+-                       "path": stats.Path,
++                       //"path": stats.Path,
+                        "upstream_host":        stats.UpstreamAddr,
+                        "upstream_status":      stats.UpstreamStatus,
+                }
+diff --git a/monitor.lua b/monitor.lua
+index 48909ea..b69559c 100644
+--- a/monitor.lua
++++ b/monitor.lua
+@@ -31,7 +31,7 @@ local function metrics()
+   return {
+     host = ngx.var.host or "-",
+     namespace = ngx.var.namespace or "-",
+-    path = ngx.var.request_uri or "-",
++--     path = ngx.var.request_uri or "-",
+
+     method = ngx.var.request_method or "-",
+     status = ngx.var.status or "-",
+diff --git a/ngxcustom-metrics b/ngxcustom-metrics
+index 21b7e5b..68090bd 100755
+```
+做如上变更后，重新编译后内存较稳定。
+
