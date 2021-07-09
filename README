@@ -5,12 +5,12 @@ ngxcustom-metrics代码是将ingress-nginx-controller中的metrics监控相关�
 
 2）配置nginx的/nginx_status模块和端口（注意这个端口和uri的配置，需要和如下环境变量一致）；
 
-3）Nginx的pod中添加如下环境变量：
-    MetricsPerHost=true
-    EnableMetrics=true
+3）Nginx的deployment中添加如下环境变量：
+    //MetricsPerHost=true
+    //EnableMetrics=true
     ListenPorts="8888"
-    POD_NAMESPACE="slb-nginx"
-    POD_NAME="slb-nginx-demo-01"
+    //POD_NAMESPACE="slb-nginx"
+    //POD_NAME="slb-nginx-demo-01"
     NGINX_CLASS="slb-nginx-demo"
 
 4）nginx.conf的http模块下配置如下内容（全局生效）:
