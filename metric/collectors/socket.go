@@ -34,7 +34,7 @@ type upstream struct {
 	ResponseLength float64 `json:"upstreamResponseLength"`
 	ResponseTime   float64 `json:"upstreamResponseTime"`
 	UpstreamAddr   string  `json:"upstreamAddr"`
-	UpstreamStatus string  `json:"upstreamStatus"`
+	//UpstreamStatus string  `json:"upstreamStatus"`
 }
 
 type socketData struct {
@@ -79,7 +79,7 @@ var (
 		"method",
 		//"path",
 		"upstream_host",
-		"upstream_status",
+		//"upstream_status",
 	}
 )
 
@@ -168,7 +168,7 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 				Namespace:   PrometheusNamespace,
 				ConstLabels: constLabels,
 			},
-			[]string{"host", "status", "upstream_host", "upstream_status"},
+			[]string{"host", "status", "upstream_host"},
 		),
 
 		bytesSent: prometheus.NewHistogramVec(
@@ -185,12 +185,12 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 		upstreamLatency: prometheus.NewSummaryVec(
 			prometheus.SummaryOpts{
 				Name:        "upstream_latency_seconds",
-				Help:        "Upstream service latency per path",
+				Help:        "Upstream service latency per host",
 				Namespace:   PrometheusNamespace,
 				ConstLabels: constLabels,
 				Objectives:  defObjectives,
 			},
-			[]string{"host", "upstream_host", "upstream_status"},
+			[]string{"host", "upstream_host"},
 		),
 	}
 
@@ -233,7 +233,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 			"method":    stats.Method,
 			//"path":      stats.Path,
 			"upstream_host":	stats.UpstreamAddr,
-			"upstream_status":	stats.UpstreamStatus,
+			//"upstream_status":	stats.UpstreamStatus,
 		}
 		if sc.metricsPerHost {
 			requestLabels["host"] = stats.Host
@@ -243,14 +243,14 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 			"host":		stats.Host,
 			"status":    stats.Status,
 			"upstream_host":	stats.UpstreamAddr,
-			"upstream_status":	stats.UpstreamStatus,
+			//"upstream_status":	stats.UpstreamStatus,
 		}
 
 		latencyLabels := prometheus.Labels{
 			"host": stats.Host,
 			//"path": stats.Path,
 			"upstream_host":	stats.UpstreamAddr,
-			"upstream_status":	stats.UpstreamStatus,
+			//"upstream_status":	stats.UpstreamStatus,
 		}
 
 		requestsMetric, err := sc.requests.GetMetricWith(collectorLabels)
