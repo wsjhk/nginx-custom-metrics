@@ -70,11 +70,12 @@ type SocketCollector struct {
 
 	hosts sets.String
 
-	metricsPerHost bool
+	//metricsPerHost bool
 }
 
 var (
 	requestTags = []string{
+		"host",
 		"status",
 		"method",
 		//"path",
@@ -89,7 +90,7 @@ var defObjectives = map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}
 
 // NewSocketCollector creates a new SocketCollector instance using
 // the ingress watch namespace and class used by the controller
-func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*SocketCollector, error) {
+func NewSocketCollector(nginxClass string) (*SocketCollector, error) {
 	socket := "/tmp/prometheus-nginx.socket"
 	// unix sockets must be unlink()ed before being used
 	_ = syscall.Unlink(socket)
@@ -107,20 +108,20 @@ func NewSocketCollector(pod, namespace, class string, metricsPerHost bool) (*Soc
 	}
 
 	constLabels := prometheus.Labels{
-		"controller_namespace": namespace,
-		"controller_class":     class,
-		"controller_pod":       pod,
+		//"controller_namespace": namespace,
+		"controller_class":     nginxClass,
+		//"controller_pod":       podName,
 	}
 
-	requestTags := requestTags
-	if metricsPerHost {
-		requestTags = append(requestTags, "host")
-	}
+	//requestTags := requestTags
+	//if metricsPerHost {
+	//	requestTags = append(requestTags, "host")
+	//}
 
 	sc := &SocketCollector{
 		listener: listener,
 
-		metricsPerHost: metricsPerHost,
+		//metricsPerHost: metricsPerHost,
 
 		responseTime: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
@@ -222,7 +223,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 
 	for _, stats := range statsBatch {
 		//if sc.metricsPerHost && !sc.hosts.Has(stats.Host) {
-		if sc.metricsPerHost && sc.hosts.Has(stats.Host) {
+		if sc.hosts.Has(stats.Host) {
 				println(time.Now().Format(time.UnixDate),": ","Skipping metric for host not being served", "host", stats.Host)
 				continue
 		}
@@ -235,9 +236,7 @@ func (sc *SocketCollector) handleMessage(msg []byte) {
 			"upstream_host":	stats.UpstreamAddr,
 			//"upstream_status":	stats.UpstreamStatus,
 		}
-		if sc.metricsPerHost {
-			requestLabels["host"] = stats.Host
-		}
+		requestLabels["host"] = stats.Host
 
 		collectorLabels := prometheus.Labels{
 			"host":		stats.Host,

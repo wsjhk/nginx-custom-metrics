@@ -16,10 +16,10 @@ import (
 )
 
 var (
-	EnableMetrics, _ = strconv.ParseBool(os.Getenv("EnableMetrics"))
-	MetricsPerHost, _ = strconv.ParseBool(os.Getenv("MetricsPerHost"))
+	//EnableMetrics, _ = strconv.ParseBool(os.Getenv("EnableMetrics"))
+	//MetricsPerHost, _ = strconv.ParseBool(os.Getenv("MetricsPerHost"))
 	ListenPorts, _ = strconv.ParseInt(os.Getenv("ListenPorts"), 10, 64)
-	err error
+	//err error
 )
 
 
@@ -34,14 +34,11 @@ func main() {
 		ReportErrors: true,
 	}))
 
-	mc := metric.NewDummyCollector()
-
-	if EnableMetrics {
-		mc, err = metric.NewCollector(MetricsPerHost, reg)
-		if err != nil {
-			println(time.Now().Format(time.UnixDate),": ","Error creating prometheus collector:  %v", err)
-		}
+	mc, err := metric.NewCollector(reg)
+	if err != nil {
+		println(time.Now().Format(time.UnixDate),": ","Error creating prometheus collector:  %v", err)
 	}
+
 	mc.Start()
 
 	mux := http.NewServeMux()

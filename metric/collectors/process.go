@@ -97,7 +97,7 @@ var name = "nginx"
 var binary = "/usr/sbin/nginx"
 
 // NewNGINXProcess returns a new prometheus collector for the nginx process
-func NewNGINXProcess(pod, namespace, ingressClass string) (NGINXProcessCollector, error) {
+func NewNGINXProcess(nginxClass string) (NGINXProcessCollector, error) {
 	fs, err := proc.NewFS("/proc", false)
 	if err != nil {
 		return nil, err
@@ -117,9 +117,9 @@ func NewNGINXProcess(pod, namespace, ingressClass string) (NGINXProcessCollector
 	}
 
 	constLabels := prometheus.Labels{
-		"controller_namespace": namespace,
-		"controller_class":     ingressClass,
-		"controller_pod":       pod,
+		//"controller_namespace": namespace,
+		"controller_class":     nginxClass,
+		//"controller_pod":       podName,
 	}
 
 	p.data = namedProcessData{
