@@ -91,5 +91,3 @@ index 21b7e5b..68090bd 100755
 ```
 做如上变更后，重新编译后内存较稳定。
 
-2.后续需要添加removemetrics的功能，根据已经下线的upstream或者host需要删除对应的metrics。优化内存资源。
-
